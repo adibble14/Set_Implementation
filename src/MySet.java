@@ -1,84 +1,116 @@
 /**
- * author: Andrew Dibble
- * Date: 1/9/22
- * Class: Data Structures
- * MySet stores a collection of Objects (in an array) along
- * with the current size of the collection. An instance of MySet should behave just like a
- * set – there is no order associated with the items in the MySet. Furthermore, there
- * should not be two items in the MySet that are .equals() to each other at any time.
+ * A MySet class that behaves like a mathematical set.
+ *
+ * @author Andrew Dibble
+ * @version January 17, 2022
  */
 public class MySet {
-    private Object[] array;
-    private int size;
+    private Object[] elements;  // the elements of this MySet
+    private int numActive;      // number of active elements
+    private static int initialCapacity = 4; // size of the array
 
     /**
-     * the constructor for MySet, takes no parameters and initiates an Object array with a size of 0
+     * the default constructor for MySet, takes no parameters and initiates an Object array with a size of 0
      */
     public MySet(){ //constructor
-        size = 0;
-        array = new Object[0];
+        elements = new Object[initialCapacity];
+        numActive = 0;
+    }
+
+    /**
+     * another constructor for MySet, takes one parameter: the initial capacity and creates the array with that capacity
+     */
+    public MySet(int initialCapacity){
+        elements = new Object[initialCapacity];
+        numActive = 0;
     }
 
     /**
      * the main method, calls the test method
      * @param args
      */
-    public static void main(String[] args){  //main method
+    public static void main(String[] args){
         test();
     }
 
     /**
-     * the test method shows the output from all the methods that MySet has to offer
+     * testing the methods
      */
-    public static void test(){
-        MySet set = new MySet();
-        set.insert("string");
-        set.insert("string");
-        set.insert("food");
-        set.insert(68);
-        set.insert(901);
-        set.insert(78.923);
-        set.insert(78.923);
-        set.insert('t');
+    public static void test() {
+        MySet testSet = new MySet();
 
-        System.out.print("The elements in the set are: ");
-        set.print();System.out.println();System.out.println();
+        if (!testSet.isEmpty()) {
+            System.out.println("Something is wrong 1.");
+        }
+        System.out.println("Inserting Andy ...");
+        testSet.insert("Andy");
+        if (testSet.isEmpty()) {
+            System.out.println("Something is wrong 2.");
+        }
+        System.out.println("Inserting Belinda ...");
+        testSet.insert("Belinda");
+        testSet.printAll();
 
-        System.out.println("Is the set empty? " + set.isEmpty());
-        System.out.println("Is 78 in the set? " + set.isPresent("78"));
-        System.out.println("Is the string \"t\" in the set ?" + set.isPresent("t"));
-        System.out.println("Is the character 't' in the set ?" + set.isPresent('t'));
-        System.out.println("The size of the set is now: " + set.size());System.out.println();
+        // test isPresent
+        if (!testSet.isPresent("Andy")) {
+            System.out.println("Something is wrong 3.");
+        }
+        if (!testSet.isPresent("Belinda")) {
+            System.out.println("Something is wrong 4.");
+        }
+        if (testSet.isPresent("Charlie")) {
+            System.out.println("Something is wrong 5.");
+        }
+        System.out.println("Removing Andy ...");
+        testSet.remove("Andy");
+        if (testSet.isPresent("Andy")) {
+            System.out.println("Something is wrong 6.");
+        }
+        testSet.printAll();
 
-        set.remove(78.923);
-        System.out.println("Removed 78.923");
-        set.print();System.out.println();
-        System.out.println("The size of the set is now: " + set.size());System.out.println();
+        // test insert -- when Gerald is inserted, the capacity
+        // of the array should double
+        System.out.println("Inserting Danielle ...");
+        testSet.insert("Danielle");
+        System.out.println("Inserting Ed ...");
+        testSet.insert("Ed");
+        System.out.println("Inserting Francine ...");
+        testSet.insert("Francine");
+        System.out.println("Inserting Gerald ...");
+        testSet.insert("Gerald");
+        testSet.printAll();
 
-        set.makeEmpty();
-        System.out.println("Removed all elements");
-        System.out.println("Is the set empty? " + set.isEmpty());System.out.println();
+        // test remove
+        System.out.println("Removing Danielle ...");
+        testSet.remove("Danielle");
+        testSet.printAll();
 
-        System.out.println("Adding the characters a,b, and c");
-        set.insert('a');
-        set.insert('b');
-        set.insert('c');
-        System.out.println("Adding null to the set");
-        set.insert(null);
+        // remove the item at the end of the array
+        System.out.println("Removing Francine ...");
+        testSet.remove("Francine");
+        testSet.printAll();
 
-        System.out.println("Is the set empty? " + set.isEmpty());
-        set.print();System.out.println();
-        System.out.println("Is null in the set? " + set.isPresent(null));
+        // test makeEmpty
+        System.out.println("Making empty ...");
+        testSet.makeEmpty();
+        if (!testSet.isEmpty()) {
+            System.out.println("Something is wrong 8.");
+        }
 
+        // try removing when there is nothing in the array
+        System.out.println("Removing Belinda ...");
+        testSet.remove("Belinda");
+        testSet.printAll();
     }
 
     /**
-     * prints the elements of the Object array
+     * prints all the elements of the Object array
      */
-    public void print(){
-        for(int i = 0; i<size; i++){
-            System.out.print(array[i] + " ");
+    public void printAll(){
+        for (Object element : elements) {
+            System.out.print(element + ", ");
         }
+        System.out.println();
     }
 
     /**
@@ -86,15 +118,20 @@ public class MySet {
      * @return true is the size is 0, false otherwise
      */
     public boolean isEmpty(){
-        return array.length == 0;
+        for(Object obj: elements){
+            if(obj != null)
+                return false;
+        }
+        return true;
     }
 
     /**
      * removes all the elements from the array
      */
     public void makeEmpty(){
-        array = new Object[0];  //making array point to a new array with no elements
-        size = 0;
+        for(int i = 0; i<numActive;i++){
+            elements[i] = null;
+        }
     }
 
     /**
@@ -102,7 +139,7 @@ public class MySet {
      * @return the number of elements in the array
      */
     public int size(){
-        return size;
+        return numActive;
     }
 
     /**
@@ -110,22 +147,31 @@ public class MySet {
      * @param o the object to be added
      */
     public void insert(Object o){
-        boolean unique = true;
-        for(Object obj: array){  //checking if this object is not already in the set
-            if(obj.equals(o)){
-                unique = false;
-                break;
+        if(o == null){  //if null does nothing
+            return;
+        }
+        for(int i = 0; i < numActive; i++){ //checking if the object is unique
+            if(elements[i].equals(o)){
+                return;
             }
         }
-        if(unique && o != null) { //if it is unique, add it to array
-            size++;
-            Object[] newArray = new Object[size];  //creating a new array to transfer the elements in to
-            for (int i = 0; i < array.length; i++) {
-                newArray[i] = array[i];
+        for(int i = 0; i< elements.length;i++){  //if room for the object, insert it
+            if(elements[i]==null){
+                elements[i] = o;
+                numActive++;
+                return;
             }
-            newArray[size - 1] = o;  //inserting the last element into the array
-            array = newArray;
         }
+
+        Object[] elements2 = new Object[numActive*2];  //creating a new array with double the size
+
+        System.arraycopy(elements, 0, elements2, 0, numActive);  //copying elements into the new array
+
+        elements2[numActive] = o;  //adding the new element into the new array
+        numActive++;
+
+        elements = elements2;  //having elements point to new array
+
     }
 
     /**
@@ -133,17 +179,11 @@ public class MySet {
      * @param o the object to be removed
      */
     public void remove(Object o){
-        for (Object obj:array) {  //for every object in array
-            if(obj.equals(o)){  //if object equals the element to remove
-                Object[] newArray = new Object[size-1];   //create a new array to transfer the elements into
-                size--;
-                for(int i=0, k=0;i<array.length;i++) {
-                    if (!(array[i].equals(obj))) {   //if the element in array does not equal the specified object
-                        newArray[k] = array[i];  //add it to the new array
-                        k++;
-                    }
-                }
-                array = newArray;  //set array equal to newArray
+        for(int i = 0; i < numActive; i++){
+            if(o.equals(elements[i])){
+                elements[i] = elements[numActive-1];  //switches the right most active element into positive with item to be removed
+                elements[numActive-1] = null;  //sets the right most active to null
+                numActive--;
             }
         }
     }
@@ -154,8 +194,8 @@ public class MySet {
      * @return true if the object is in the array, false otherwise
      */
     public boolean isPresent(Object o){
-        for(Object obj: array){
-            if(obj.equals(o)){
+        for(int i = 0; i < numActive; i++){
+            if(elements[i].equals(o)){
                 return true;
             }
         }
@@ -171,4 +211,6 @@ public class MySet {
     public boolean equals(Object obj){
         return (this == obj);
     }
+
+
 }
